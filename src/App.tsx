@@ -13,6 +13,7 @@ import { AdminDashboard } from './pages/AdminDashboard';
 import { OrganizerDashboard } from './pages/OrganizerDashboard';
 import { TrekkerDashboard } from './pages/TrekkerDashboard';
 import { AuthPage } from './pages/AuthPage';
+import { ProfilePage } from './pages/ProfilePage';
 import { AboutPage } from './pages/AboutPage';
 import { BlogPage } from './pages/BlogPage';
 import { ContactPage } from './pages/ContactPage';
@@ -33,10 +34,11 @@ export const App: React.FC = () => {
                 <Route path="/treks" element={<TreksPage />} />
                 <Route path="/treks/:slug" element={<TrekDetailPage />} />
                 
-                {/* Dashboards */}
+                {/* Dashboards & Profile */}
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
                 <Route path="/organizer/dashboard" element={<OrganizerDashboard />} />
                 <Route path="/trekker/dashboard" element={<TrekkerDashboard />} />
+                <Route path="/profile" element={<ProfilePage />} />
 
                 {/* Authentication */}
                 <Route path="/auth" element={<AuthPage />} />

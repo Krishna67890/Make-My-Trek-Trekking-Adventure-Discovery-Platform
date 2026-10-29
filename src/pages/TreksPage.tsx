@@ -31,19 +31,26 @@ export const TreksPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-mountain-theme">
-      {/* Top Banner matching Canva treks page.png */}
-      <div className="relative bg-[#FED547] pt-12 pb-20 px-4 sm:px-6 lg:px-8 border-b-2 border-black/10">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+      {/* Top Banner with Mountain Trek Photo */}
+      <div
+        className="relative pt-16 pb-20 px-4 sm:px-6 lg:px-8 border-b-2 border-black text-white overflow-hidden"
+        style={{
+          backgroundImage: `linear-gradient(180deg, rgba(8, 12, 18, 0.75) 0%, rgba(10, 14, 20, 0.9) 100%), url('/Assets/Anjenery-hills-1.png')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center 40%',
+        }}
+      >
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
           <div className="text-center md:text-left">
-            <h1 className="font-heading text-5xl sm:text-6xl md:text-7xl text-black">
+            <h1 className="font-heading text-5xl sm:text-6xl md:text-7xl text-white drop-shadow-md">
               Treks
             </h1>
-            <p className="text-xs sm:text-sm font-semibold text-neutral-800 uppercase tracking-widest mt-1">
+            <p className="text-xs sm:text-sm font-semibold text-brand-primaryYellow uppercase tracking-widest mt-1">
               Handpicked Sahyadri trails with certified expedition leaders
             </p>
           </div>
 
-          {/* Filter Toggle Button matching Canva icon */}
+          {/* Filter Toggle Button */}
           <button
             onClick={() => setFiltersOpen(!filtersOpen)}
             className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white border-2 border-black shadow-md hover:bg-neutral-50 transition text-sm font-bold text-black"
@@ -53,18 +60,18 @@ export const TreksPage: React.FC = () => {
           </button>
         </div>
 
-        {/* Yellow Search Bar matching Canva treks page.png */}
-        <div className="max-w-4xl mx-auto mt-8">
+        {/* Clean Search Bar */}
+        <div className="max-w-4xl mx-auto mt-8 relative z-10">
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-              <Search className="h-6 w-6 text-neutral-700" />
+              <Search className="h-6 w-6 text-neutral-400" />
             </div>
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by trek name, fort, or location (e.g. Anjaneri, Kalsubai, Nashik)..."
-              className="w-full pl-14 pr-12 py-4 rounded-full bg-[#FFE48C] text-black placeholder-neutral-700 font-medium text-sm sm:text-base border-2 border-black/30 shadow-inner focus:outline-none focus:ring-2 focus:ring-black transition"
+              className="w-full pl-14 pr-12 py-4 rounded-full bg-white text-black placeholder-neutral-500 font-medium text-sm sm:text-base border-2 border-black shadow-lg focus:outline-none focus:ring-2 focus:ring-brand-primaryYellow transition"
             />
             {searchQuery && (
               <button

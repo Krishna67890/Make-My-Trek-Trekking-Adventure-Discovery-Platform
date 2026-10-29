@@ -64,7 +64,7 @@ export const TrekkerDashboard: React.FC = () => {
           <div>
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-primaryYellow mb-1">
               <Compass className="w-4 h-4" />
-              <span>Trekker Portal</span>
+              <span>{user?.role === 'USER' ? 'Explorer Portal' : 'Trekker Portal'}</span>
             </div>
             <h1 className="font-heading text-4xl sm:text-5xl text-white">
               Welcome, {user?.displayName || 'Adventurer'}
@@ -74,12 +74,20 @@ export const TrekkerDashboard: React.FC = () => {
             </p>
           </div>
 
-          <Link
-            to="/treks"
-            className="px-6 py-3 rounded-full bg-brand-primaryYellow text-black font-extrabold text-xs sm:text-sm hover:bg-brand-orange hover:text-white transition shadow"
-          >
-            Explore More Treks
-          </Link>
+          <div className="flex items-center gap-2.5">
+            <Link
+              to="/profile"
+              className="px-5 py-3 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-xs sm:text-sm transition shadow"
+            >
+              My Profile
+            </Link>
+            <Link
+              to="/treks"
+              className="px-6 py-3 rounded-full bg-brand-primaryYellow text-black font-extrabold text-xs sm:text-sm hover:bg-brand-orange hover:text-white transition shadow"
+            >
+              Explore More Treks
+            </Link>
+          </div>
         </div>
       </div>
 

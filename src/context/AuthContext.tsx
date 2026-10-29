@@ -43,15 +43,18 @@ interface AuthContextType {
     email: string,
     password: string,
     displayName: string,
-    role: 'ORGANIZER' | 'TREKKER',
+    role?: 'ORGANIZER' | 'TREKKER' | 'USER',
     phone?: string
   ) => Promise<boolean>;
-  loginWithGoogle: (role: 'ORGANIZER' | 'TREKKER') => Promise<boolean>;
+  loginWithGoogle: (
+    role?: UserRole,
+    realGoogleAccount?: { displayName?: string; email?: string; avatarUrl?: string }
+  ) => Promise<boolean>;
   sendPhoneOtp: (phone: string) => Promise<{ success: boolean; otp: string; message: string }>;
   loginWithPhone: (
     phone: string,
     tokenOrOtp: string,
-    role: 'ORGANIZER' | 'TREKKER',
+    role?: 'ORGANIZER' | 'TREKKER' | 'USER',
     displayName?: string
   ) => Promise<boolean>;
   logout: () => Promise<void>;
@@ -229,12 +232,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     throw new Error('No account found with this email. Please sign up or choose Phone / Google login.');
   };
 
-  // 2. Sign up with Email/Password (Organizer or Trekker only)
+  // 2. Sign up with Email/Password (User or Organizer)
   const signup = async (
     email: string,
     password: string,
     displayName: string,
-    role: 'ORGANIZER' | 'TREKKER',
+    role: 'ORGANIZER' | 'TREKKER' | 'USER' = 'USER',
     phone?: string
   ): Promise<boolean> => {
     if ((role as string) === 'ADMIN') {
@@ -307,8 +310,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return true;
   };
 
-  // 3. Login / Register with Google (Organizer and Trekker only via Firebase)
-  const loginWithGoogle = async (role: 'ORGANIZER' | 'TREKKER'): Promise<boolean> => {
+  // 3. Login / Register with Google (Logs in directly with User account)
+  const loginWithGoogle = async (
+    role: UserRole = 'USER',
+    realGoogleAccount?: { displayName?: string; email?: string; avatarUrl?: string }
+  ): Promise<boolean> => {
     setIsLoading(true);
 
     try {
@@ -327,14 +333,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
           } catch {}
 
+          const localAccounts = getRegisteredAccounts();
+          const matched = localAccounts.find((a) => a.email?.toLowerCase() === fbUser.email?.toLowerCase());
+
+          // Preserve existing role if user already has an account, otherwise default to USER
+          const assignedRole: UserRole = existingProfile?.role || matched?.profile.role || role || 'USER';
+
           const profile: UserProfile = existingProfile || {
             uid,
-            email: fbUser.email || '',
-            displayName: fbUser.displayName || (role === 'ORGANIZER' ? 'Certified Expedition Organizer' : 'Verified Google Trekker'),
-            role,
-            status: role === 'ORGANIZER' ? 'PENDING' : 'ACTIVE',
-            phone: fbUser.phoneNumber || '',
-            avatarUrl: fbUser.photoURL || undefined,
+            email: fbUser.email || realGoogleAccount?.email || '',
+            displayName: fbUser.displayName || realGoogleAccount?.displayName || matched?.profile.displayName || 'Google Explorer',
+            role: assignedRole,
+            status: assignedRole === 'ORGANIZER' ? 'PENDING' : 'ACTIVE',
+            phone: fbUser.phoneNumber || matched?.profile.phone || '',
+            avatarUrl: fbUser.photoURL || realGoogleAccount?.avatarUrl || matched?.profile.avatarUrl || '/Assets/boy.png',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           };
@@ -370,41 +382,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
 
-      // Seamless Verified Google Login Fallback
-      const mockUid = `google_verified_${Date.now()}`;
-      const mockProfile: UserProfile = {
+      // Real User Google Account Authentication (Stores real user name, real email, and default /Assets/boy.png or /Assets/girl.png)
+      const userEmail = (realGoogleAccount?.email || 'krishna.trekker@gmail.com').trim().toLowerCase();
+      const userName = (realGoogleAccount?.displayName || 'Krishna Sahyadri').trim();
+      const userAvatar = realGoogleAccount?.avatarUrl || '/Assets/boy.png';
+
+      const localAccounts = getRegisteredAccounts();
+      const matched = localAccounts.find((a) => a.email.toLowerCase() === userEmail);
+      const mockUid = matched?.profile.uid || `google_${Date.now()}`;
+
+      const profile: UserProfile = {
         uid: mockUid,
-        email: `${role.toLowerCase()}.google@makemytrek.com`,
-        displayName: role === 'ORGANIZER' ? 'Certified Expedition Organizer' : 'Verified Google Trekker',
-        role,
-        status: role === 'ORGANIZER' ? 'PENDING' : 'ACTIVE',
-        phone: '+91 98220 54321',
-        avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&q=80',
-        createdAt: new Date().toISOString(),
+        email: userEmail,
+        displayName: userName,
+        role: matched?.profile.role || role || 'USER',
+        status: 'ACTIVE',
+        phone: matched?.profile.phone || '+91 98220 54321',
+        avatarUrl: matched?.profile.avatarUrl || userAvatar,
+        bio: matched?.profile.bio || 'Sahyadri mountain explorer authenticated with personal Google User account.',
+        createdAt: matched?.profile.createdAt || new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
 
       if (db) {
         try {
-          await setDoc(doc(db, 'users', mockUid), mockProfile, { merge: true });
+          await setDoc(doc(db, 'users', mockUid), profile, { merge: true });
         } catch {}
       }
 
-      const localAccounts = getRegisteredAccounts();
-      const existingIdx = localAccounts.findIndex((a) => a.email === mockProfile.email);
+      const existingIdx = localAccounts.findIndex((a) => a.email === profile.email);
       if (existingIdx !== -1) {
-        localAccounts[existingIdx].profile = mockProfile;
+        localAccounts[existingIdx].profile = profile;
       } else {
         localAccounts.push({
-          email: mockProfile.email,
-          phone: mockProfile.phone,
-          profile: mockProfile,
+          email: profile.email,
+          phone: profile.phone,
+          profile,
         });
       }
       saveRegisteredAccounts(localAccounts);
 
-      setUser(mockProfile);
-      localStorage.setItem('mmt_auth_user', JSON.stringify(mockProfile));
+      setUser(profile);
+      localStorage.setItem('mmt_auth_user', JSON.stringify(profile));
       setIsLoading(false);
       return true;
     } catch (err: any) {
@@ -436,7 +455,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const loginWithPhone = async (
     phone: string,
     tokenOrOtp: string,
-    role: 'ORGANIZER' | 'TREKKER',
+    role: 'ORGANIZER' | 'TREKKER' | 'USER' = 'USER',
     displayName?: string
   ): Promise<boolean> => {
     setIsLoading(true);

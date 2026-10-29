@@ -125,14 +125,23 @@ export const Navbar: React.FC = () => {
                   </div>
 
                   <Link
+                    to="/profile"
+                    onClick={() => setRoleDropdownOpen(false)}
+                    className="flex items-center gap-2 px-4 py-2.5 text-neutral-200 hover:bg-neutral-800 hover:text-brand-primaryYellow transition border-b border-neutral-800/60"
+                  >
+                    <User className="w-4 h-4 text-brand-primaryYellow" />
+                    <span className="font-medium">My Personal Profile</span>
+                  </Link>
+
+                  <Link
                     to={getDashboardRoute()}
                     onClick={() => setRoleDropdownOpen(false)}
                     className="flex items-center gap-2 px-4 py-2.5 text-neutral-200 hover:bg-neutral-800 hover:text-brand-primaryYellow transition"
                   >
                     {role === 'ADMIN' && <Shield className="w-4 h-4 text-brand-primaryYellow" />}
                     {role === 'ORGANIZER' && <Compass className="w-4 h-4 text-brand-primaryYellow" />}
-                    {role === 'TREKKER' && <MapPin className="w-4 h-4 text-brand-primaryYellow" />}
-                    <span className="font-medium">{role} Dashboard</span>
+                    {(role === 'TREKKER' || role === 'USER') && <MapPin className="w-4 h-4 text-brand-primaryYellow" />}
+                    <span className="font-medium">{role === 'USER' ? 'Explorer Dashboard' : `${role} Dashboard`}</span>
                   </Link>
 
                   <button
@@ -232,11 +241,19 @@ export const Navbar: React.FC = () => {
                 </div>
 
                 <Link
+                  to="/profile"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block w-full text-center py-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs shadow transition border border-white/20"
+                >
+                  My Personal Profile
+                </Link>
+
+                <Link
                   to={getDashboardRoute()}
                   onClick={() => setMobileMenuOpen(false)}
                   className="block w-full text-center py-2.5 rounded-full bg-brand-primaryYellow text-black font-extrabold text-xs shadow"
                 >
-                  Go to {user.role} Dashboard
+                  Go to {user.role === 'USER' ? 'Explorer' : user.role} Dashboard
                 </Link>
 
                 <button

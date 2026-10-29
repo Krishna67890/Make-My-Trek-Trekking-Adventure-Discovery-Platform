@@ -156,13 +156,21 @@ export const OrganizerDashboard: React.FC = () => {
             </p>
           </div>
 
-          <button
-            onClick={() => { resetForm(); setCreateModalOpen(true); }}
-            className="flex items-center gap-2 px-6 py-3 rounded-full bg-brand-primaryYellow text-black font-extrabold text-xs sm:text-sm shadow hover:bg-brand-orange hover:text-white transition"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Create New Trek</span>
-          </button>
+          <div className="flex items-center gap-2.5">
+            <Link
+              to="/profile"
+              className="px-5 py-3 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-xs sm:text-sm transition shadow"
+            >
+              My Profile
+            </Link>
+            <button
+              onClick={() => { resetForm(); setCreateModalOpen(true); }}
+              className="flex items-center gap-2 px-6 py-3 rounded-full bg-brand-primaryYellow text-black font-extrabold text-xs sm:text-sm shadow hover:bg-brand-orange hover:text-white transition"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Create New Trek</span>
+            </button>
+          </div>
         </div>
       </div>
 

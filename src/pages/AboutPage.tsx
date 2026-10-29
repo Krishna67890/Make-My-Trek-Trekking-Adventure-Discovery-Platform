@@ -4,16 +4,24 @@ import { Compass, ShieldCheck, Heart, Map, Users } from 'lucide-react';
 export const AboutPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-mountain-theme">
-      {/* Top Banner */}
-      <div className="bg-[#FED547] py-16 px-4 sm:px-6 lg:px-8 border-b-2 border-black">
-        <div className="max-w-4xl mx-auto text-center space-y-3">
-          <span className="text-xs font-bold uppercase tracking-widest text-neutral-800">
-            Our Story &bull; Sahyadri Heritage
-          </span>
-          <h1 className="font-heading text-5xl sm:text-6xl text-black">
+      {/* Top Banner with Mountain Trek Photo */}
+      <div
+        className="relative py-20 px-4 sm:px-6 lg:px-8 border-b-2 border-black text-white overflow-hidden"
+        style={{
+          backgroundImage: `linear-gradient(180deg, rgba(10, 14, 20, 0.72) 0%, rgba(10, 14, 20, 0.88) 100%), url('/Assets/Anjenery-hills-1.png')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center 40%',
+        }}
+      >
+        <div className="max-w-4xl mx-auto text-center space-y-3 relative z-10">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-brand-primaryYellow/20 border border-brand-primaryYellow/40 text-xs font-bold uppercase tracking-widest text-brand-primaryYellow">
+            <Compass className="w-3.5 h-3.5" />
+            <span>Our Story &bull; Sahyadri Heritage</span>
+          </div>
+          <h1 className="font-heading text-5xl sm:text-6xl text-white drop-shadow-md">
             About Make My Trek
           </h1>
-          <p className="font-body text-neutral-800 text-sm sm:text-base max-w-2xl mx-auto">
+          <p className="font-body text-neutral-200 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
             Born from a deep reverence for the Sahyadri mountains of Maharashtra, Make My Trek brings mountaineering discipline, 3D geographic transparency, and verified safety to every trekker.
           </p>
         </div>
@@ -22,7 +30,7 @@ export const AboutPage: React.FC = () => {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-16">
         {/* Mission & Vision */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="bg-[#FED547]/20 border-2 border-black rounded-3xl p-8 space-y-4 shadow-sm">
+          <div className="bg-white border-2 border-black rounded-3xl p-8 space-y-4 shadow-md">
             <Compass className="w-8 h-8 text-brand-orange" />
             <h2 className="font-heading text-3xl text-black">Our Mission</h2>
             <p className="text-sm text-neutral-700 leading-relaxed">
@@ -30,7 +38,7 @@ export const AboutPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="bg-[#FED547]/20 border-2 border-black rounded-3xl p-8 space-y-4 shadow-sm">
+          <div className="bg-white border-2 border-black rounded-3xl p-8 space-y-4 shadow-md">
             <ShieldCheck className="w-8 h-8 text-brand-orange" />
             <h2 className="font-heading text-3xl text-black">Safety First Philosophy</h2>
             <p className="text-sm text-neutral-700 leading-relaxed">

@@ -273,36 +273,8 @@ export const INITIAL_ORGANIZERS: OrganizerApplication[] = [
   }
 ];
 
-// Verified reviews matching Canva design (Nilambari Nehete)
-export const INITIAL_REVIEWS: Review[] = [
-  {
-    id: 'rev-1',
-    trekId: 'trek-anjeneri-hills',
-    reviewerId: 'rev-user-1',
-    reviewerName: 'Nilambari Nehete',
-    rating: 5,
-    comment: 'An extraordinary experience trekking to Anjaneri Hills! The guides ensured safety throughout the rock steps and the view of the footprint lake was completely magical. Everything was handled seamlessly by Make My Trek.',
-    createdAt: '2026-10-18T14:20:00.000Z',
-  },
-  {
-    id: 'rev-2',
-    trekId: 'trek-anjeneri-hills',
-    reviewerId: 'rev-user-2',
-    reviewerName: 'Rohan Deshmukh',
-    rating: 5,
-    comment: 'The 3D terrain preview on the platform gave us exact trail insight before starting. The real-time updates from our guide made our group feel confident and completely safe. Highly recommended!',
-    createdAt: '2026-10-22T09:45:00.000Z',
-  },
-  {
-    id: 'rev-3',
-    trekId: 'trek-kalsubai-peak',
-    reviewerId: 'rev-user-3',
-    reviewerName: 'Tanvi Shinde',
-    rating: 5,
-    comment: 'The sunrise from the highest peak of Maharashtra was an unforgettable memory. The breakfast at the local village was authentic and delicious.',
-    createdAt: '2026-10-24T18:10:00.000Z',
-  }
-];
+// Real authenticated reviews list (User generated)
+export const INITIAL_REVIEWS: Review[] = [];
 
 export const INITIAL_BOOKINGS: Booking[] = [
   {

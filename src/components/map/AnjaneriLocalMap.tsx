@@ -232,11 +232,11 @@ export const AnjaneriLocalMap: React.FC<AnjaneriLocalMapProps> = ({
   const destLoc =
     REAL_ANJANERI_LOCATIONS.find((l) => l.id === destinationId) || REAL_ANJANERI_LOCATIONS[7];
 
-  // Effective departure coordinates (GPS or selected preset)
+  // Effective departure coordinates (Actual GPS or selected preset)
   const effectiveStart =
-    useGpsAsStart && gpsCoords
+    (useGpsAsStart || startLocationId === 'my-actual-location') && gpsCoords
       ? {
-          name: `My Live GPS (${gpsCoords.lat.toFixed(4)}°, ${gpsCoords.lng.toFixed(4)}°)`,
+          name: `📍 My Actual Location (${gpsCoords.lat.toFixed(4)}°, ${gpsCoords.lng.toFixed(4)}°)`,
           lat: gpsCoords.lat,
           lng: gpsCoords.lng,
           altitude: 600,
@@ -489,6 +489,66 @@ export const AnjaneriLocalMap: React.FC<AnjaneriLocalMapProps> = ({
     }
   };
 
+  // Detect Actual Location and immediately plot Route on Map
+  const detectActualLocationAndRoute = () => {
+    if (!navigator.geolocation) {
+      setGpsError('Geolocation is not supported by your browser.');
+      return;
+    }
+
+    setIsGpsActive(true);
+    setUseGpsAsStart(true);
+    setStartLocationId('my-actual-location');
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude, accuracy } = position.coords;
+        const coords = { lat: latitude, lng: longitude, accuracy: Math.round(accuracy) };
+        setGpsCoords(coords);
+
+        const map = mapInstanceRef.current;
+        if (!map) return;
+
+        const gpsIcon = L.divIcon({
+          className: 'live-gps-beacon',
+          html: `
+            <div style="position:relative; width:30px; height:30px; display:flex; align-items:center; justify-content:center;">
+              <div style="position:absolute; width:30px; height:30px; background-color:#38BDF8; border-radius:50%; opacity:0.7; animation:ping 1.5s cubic-bezier(0,0,0.2,1) infinite;"></div>
+              <div style="width:16px; height:16px; background-color:#0284C7; border:3px solid #FFFFFF; border-radius:50%; box-shadow:0 0 12px rgba(2,132,199,0.9);"></div>
+            </div>
+          `,
+          iconSize: [30, 30],
+          iconAnchor: [15, 15],
+        });
+
+        if (!gpsMarkerRef.current) {
+          gpsMarkerRef.current = L.marker([latitude, longitude], { icon: gpsIcon }).addTo(map);
+          gpsMarkerRef.current.bindTooltip('<b>📍 Your Actual Location</b>', { direction: 'top', permanent: true });
+        } else {
+          gpsMarkerRef.current.setLatLng([latitude, longitude]);
+        }
+
+        // Draw and fit route from actual location to destination
+        const dest = REAL_ANJANERI_LOCATIONS.find((l) => l.id === destinationId) || REAL_ANJANERI_LOCATIONS[7];
+        const routePts: [number, number][] = [
+          [latitude, longitude],
+          [19.9315, 73.5712],
+          [dest.lat, dest.lng],
+        ];
+        try {
+          const bounds = L.latLngBounds(routePts);
+          map.flyToBounds(bounds, { padding: [60, 60], duration: 1.5 });
+        } catch {}
+      },
+      (err) => {
+        console.warn('Geolocation error:', err.message);
+        setGpsError(err.message || 'Unable to fetch current GPS coordinates.');
+        setGpsCoords({ lat: 19.9975, lng: 73.7898, accuracy: 25 });
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+    );
+  };
+
   const changeTileLayer = (type: 'streets' | 'topo' | 'satellite') => {
     setActiveTileType(type);
     if (!mapInstanceRef.current || !tileLayerRef.current) return;
@@ -632,49 +692,60 @@ export const AnjaneriLocalMap: React.FC<AnjaneriLocalMapProps> = ({
           </span>
         </div>
 
-        {/* 1. Start Location Input with GPS Toggle */}
+        {/* Prominent Actual Location Detector Button */}
+        <button
+          type="button"
+          onClick={detectActualLocationAndRoute}
+          className={`w-full py-2.5 px-3 rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 transition border-2 shadow-sm ${
+            (useGpsAsStart || startLocationId === 'my-actual-location') && gpsCoords
+              ? 'bg-sky-600 text-white border-black'
+              : 'bg-brand-primaryYellow text-black border-black hover:bg-black hover:text-white'
+          }`}
+        >
+          <Crosshair className="w-4 h-4 animate-spin-slow" />
+          <span>
+            {(useGpsAsStart || startLocationId === 'my-actual-location') && gpsCoords
+              ? `📍 Actual Location Active (${gpsCoords.lat.toFixed(3)}°, ${gpsCoords.lng.toFixed(3)}°)`
+              : '📍 Detect My Actual Location & Route'}
+          </span>
+        </button>
+
+        {/* 1. Start Location Input with GPS Option */}
         <div>
           <div className="flex items-center justify-between mb-1">
             <label className="text-[10px] font-extrabold uppercase text-neutral-700 flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-emerald-500" />
               <span>Location (Departure Point)</span>
             </label>
-            {isGpsActive && (
-              <button
-                type="button"
-                onClick={() => setUseGpsAsStart(!useGpsAsStart)}
-                className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full border transition flex items-center gap-1 ${
-                  useGpsAsStart
-                    ? 'bg-sky-600 text-white border-sky-800'
-                    : 'bg-neutral-100 text-neutral-700 border-neutral-300 hover:border-black'
-                }`}
-              >
-                <Crosshair className="w-2.5 h-2.5" />
-                <span>{useGpsAsStart ? 'Using My GPS' : 'Use My GPS'}</span>
-              </button>
+            {gpsCoords && (
+              <span className="text-[9px] font-mono font-bold text-sky-700 bg-sky-100 px-2 py-0.5 rounded-full">
+                {gpsCoords.lat.toFixed(2)}°, {gpsCoords.lng.toFixed(2)}°
+              </span>
             )}
           </div>
 
-          {!useGpsAsStart ? (
-            <select
-              value={startLocationId}
-              onChange={(e) => setStartLocationId(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl border-2 border-neutral-300 focus:border-black text-xs font-semibold bg-white shadow-sm"
-            >
-              {REAL_ANJANERI_LOCATIONS.map((loc) => (
-                <option key={loc.id} value={loc.id}>
-                  {loc.name} ({loc.altitudeStr})
-                </option>
-              ))}
-            </select>
-          ) : (
-            <div className="px-3 py-2 bg-sky-50 border-2 border-sky-400 rounded-xl text-xs font-bold text-sky-900 flex items-center justify-between">
-              <span>My Live GPS Coordinates</span>
-              <span className="font-mono text-[11px] text-sky-700">
-                {gpsCoords ? `${gpsCoords.lat.toFixed(4)}°, ${gpsCoords.lng.toFixed(4)}°` : 'Detecting...'}
-              </span>
-            </div>
-          )}
+          <select
+            value={startLocationId}
+            onChange={(e) => {
+              const val = e.target.value;
+              setStartLocationId(val);
+              if (val === 'my-actual-location') {
+                detectActualLocationAndRoute();
+              } else {
+                setUseGpsAsStart(false);
+              }
+            }}
+            className="w-full px-3 py-2 rounded-xl border-2 border-neutral-300 focus:border-black text-xs font-semibold bg-white shadow-sm"
+          >
+            <option value="my-actual-location">
+              📍 My Actual Location {gpsCoords ? `(${gpsCoords.lat.toFixed(3)}°, ${gpsCoords.lng.toFixed(3)}°)` : '(Detect GPS)'}
+            </option>
+            {REAL_ANJANERI_LOCATIONS.map((loc) => (
+              <option key={loc.id} value={loc.id}>
+                {loc.name} ({loc.altitudeStr})
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* 2. Destination Input */}

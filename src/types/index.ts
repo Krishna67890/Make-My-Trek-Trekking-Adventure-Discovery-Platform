@@ -1,4 +1,4 @@
-export type UserRole = 'ADMIN' | 'ORGANIZER' | 'TREKKER';
+export type UserRole = 'ADMIN' | 'ORGANIZER' | 'TREKKER' | 'USER';
 
 export type AccountStatus = 'ACTIVE' | 'PENDING' | 'REJECTED' | 'SUSPENDED';
 
@@ -10,6 +10,15 @@ export interface UserProfile {
   status: AccountStatus;
   phone?: string;
   avatarUrl?: string;
+  bio?: string;
+  experienceLevel?: 'Beginner' | 'Intermediate' | 'Advanced Mountaineer' | 'Certified Guide';
+  city?: string;
+  state?: string;
+  emergencyContact?: string;
+  emergencyPhone?: string;
+  bloodGroup?: string;
+  organizationName?: string;
+  certifications?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -112,9 +121,11 @@ export interface Booking {
 export interface Review {
   id: string;
   trekId: string;
+  trekTitle?: string;
   reviewerId: string;
   reviewerName: string;
   reviewerAvatar?: string;
+  reviewerRole?: string;
   rating: number; // 1-5
   comment: string;
   createdAt: string;

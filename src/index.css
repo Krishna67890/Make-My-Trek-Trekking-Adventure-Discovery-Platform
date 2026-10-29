@@ -115,19 +115,16 @@
   border-radius: 50% 50% 0 0 / 15% 15% 0 0;
 }
 
-/* Custom scrollbar */
+/* Clean hidden scrollbar */
 ::-webkit-scrollbar {
-  width: 9px;
+  width: 0px;
+  height: 0px;
+  display: none;
 }
-::-webkit-scrollbar-track {
-  background: #f8f8f8;
-}
-::-webkit-scrollbar-thumb {
-  background: #FFC800;
-  border-radius: 6px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #D79700;
+
+html, body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 /* ========================================================

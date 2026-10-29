@@ -19,7 +19,17 @@ interface DataContextType {
   createBooking: (bookingData: Omit<Booking, 'id' | 'createdAt' | 'updatedAt' | 'bookingStatus' | 'paymentStatus'>) => Booking;
   confirmBookingPayment: (bookingId: string, razorpayPaymentId: string, razorpayOrderId?: string) => void;
   cancelBooking: (bookingId: string, reason: string) => void;
-  addReview: (trekId: string, rating: number, comment: string, reviewerName: string, reviewerId: string) => void;
+  addReview: (
+    trekId: string,
+    rating: number,
+    comment: string,
+    reviewerName: string,
+    reviewerId: string,
+    reviewerAvatar?: string,
+    trekTitle?: string,
+    reviewerRole?: string
+  ) => void;
+  deleteReview: (reviewId: string) => void;
   subscribeNewsletter: (email: string) => { success: boolean; message: string };
 }
 
@@ -43,7 +53,19 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const [reviews, setReviews] = useState<Review[]>(() => {
     const saved = localStorage.getItem('mmt_reviews');
-    return saved ? JSON.parse(saved) : INITIAL_REVIEWS;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // Filter out old dummy reviews so only real authenticated user reviews appear
+        const cleaned = Array.isArray(parsed)
+          ? parsed.filter((r) => !['rev-1', 'rev-2', 'rev-3'].includes(r.id))
+          : [];
+        return cleaned;
+      } catch {
+        return [];
+      }
+    }
+    return INITIAL_REVIEWS;
   });
 
   const [newsletterSubscribers, setNewsletterSubscribers] = useState<NewsletterSubscriber[]>(() => {
@@ -226,17 +248,33 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
   };
 
-  const addReview = (trekId: string, rating: number, comment: string, reviewerName: string, reviewerId: string) => {
+  const addReview = (
+    trekId: string,
+    rating: number,
+    comment: string,
+    reviewerName: string,
+    reviewerId: string,
+    reviewerAvatar?: string,
+    trekTitle?: string,
+    reviewerRole?: string
+  ) => {
     const newRev: Review = {
       id: `rev-${Date.now()}`,
       trekId,
+      trekTitle: trekTitle || 'Sahyadri Expedition',
       reviewerId,
       reviewerName,
+      reviewerAvatar: reviewerAvatar || '/Assets/boy.png',
+      reviewerRole: reviewerRole || 'Verified Trekker',
       rating,
       comment,
       createdAt: new Date().toISOString(),
     };
     setReviews((prev) => [newRev, ...prev]);
+  };
+
+  const deleteReview = (reviewId: string) => {
+    setReviews((prev) => prev.filter((r) => r.id !== reviewId));
   };
 
   const subscribeNewsletter = (email: string) => {
@@ -277,6 +315,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         confirmBookingPayment,
         cancelBooking,
         addReview,
+        deleteReview,
         subscribeNewsletter,
       }}
     >

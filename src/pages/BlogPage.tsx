@@ -38,16 +38,24 @@ export const BlogPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-mountain-theme">
-      {/* Banner */}
-      <div className="bg-[#FED547] py-16 px-4 sm:px-6 lg:px-8 border-b-2 border-black">
-        <div className="max-w-4xl mx-auto text-center space-y-3">
-          <span className="text-xs font-bold uppercase tracking-widest text-neutral-800">
-            Field Notes &bull; Trail Stories
-          </span>
-          <h1 className="font-heading text-5xl sm:text-6xl text-black">
+      {/* Banner with Mountain Trek Photo */}
+      <div
+        className="relative py-20 px-4 sm:px-6 lg:px-8 border-b-2 border-black text-white overflow-hidden"
+        style={{
+          backgroundImage: `linear-gradient(180deg, rgba(12, 16, 22, 0.72) 0%, rgba(10, 14, 20, 0.9) 100%), url('/Assets/3.png')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center 45%',
+        }}
+      >
+        <div className="max-w-4xl mx-auto text-center space-y-3 relative z-10">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-brand-primaryYellow/20 border border-brand-primaryYellow/40 text-xs font-bold uppercase tracking-widest text-brand-primaryYellow">
+            <Tag className="w-3.5 h-3.5" />
+            <span>Field Notes &bull; Trail Stories</span>
+          </div>
+          <h1 className="font-heading text-5xl sm:text-6xl text-white drop-shadow-md">
             The Trekker's Chronicle
           </h1>
-          <p className="font-body text-neutral-800 text-sm sm:text-base max-w-xl mx-auto">
+          <p className="font-body text-neutral-200 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
             Mountaineering knowledge, seasonal trail reports, and geological guides from our certified team.
           </p>
         </div>
