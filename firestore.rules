@@ -1,0 +1,108 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.role == 'ADMIN' ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN'
+      );
+    }
+
+    function isApprovedOrganizer() {
+      return isAuthenticated() && (
+        request.auth.token.role == 'ORGANIZER' ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ORGANIZER'
+      );
+    }
+
+    // 1. Users collection
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId) && request.resource.data.role != 'ADMIN';
+      allow update: if isOwner(userId) && 
+        (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'status'])) || 
+        isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // 2. Organizers collection
+    match /organizers/{organizerId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.status == 'PENDING';
+      allow update: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid && request.resource.data.status == resource.data.status);
+      allow delete: if isAdmin();
+    }
+
+    // 3. Treks collection
+    match /treks/{trekId} {
+      // Public can only read approved treks
+      allow read: if resource.data.status == 'APPROVED' || isApprovedOrganizer() || isAdmin();
+      // Organizers can submit new treks in PENDING state
+      allow create: if isApprovedOrganizer() && request.resource.data.status == 'PENDING';
+      // Organizers can edit their own treks; status changes require Admin approval
+      allow update: if isAdmin() || (
+        isApprovedOrganizer() && 
+        resource.data.organizerId == request.auth.uid &&
+        (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['status']) || request.resource.data.status == 'PENDING')
+      );
+      allow delete: if isAdmin();
+    }
+
+    // 4. Bookings collection
+    match /bookings/{bookingId} {
+      allow read: if isAuthenticated() && (
+        resource.data.trekkerId == request.auth.uid || 
+        resource.data.organizerId == request.auth.uid || 
+        isAdmin()
+      );
+      // Validated booking creation
+      allow create: if isAuthenticated() && 
+        request.resource.data.trekkerId == request.auth.uid &&
+        request.resource.data.bookingStatus in ['PENDING_PAYMENT', 'CONFIRMED'] &&
+        request.resource.data.participants.size() > 0;
+      // Updates strictly governed
+      allow update: if isAdmin() || (
+        isAuthenticated() && resource.data.trekkerId == request.auth.uid && 
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['bookingStatus', 'updatedAt']) &&
+        request.resource.data.bookingStatus == 'CANCELLED'
+      );
+      allow delete: if isAdmin();
+    }
+
+    // 5. Payments collection (minimum necessary references)
+    match /payments/{paymentId} {
+      allow read: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid || isAdmin()
+      );
+      allow write: if isAdmin();
+    }
+
+    // 6. Reviews collection
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isAuthenticated() && 
+        request.resource.data.reviewerId == request.auth.uid &&
+        request.resource.data.rating >= 1 && request.resource.data.rating <= 5;
+      allow update, delete: if isAdmin() || (
+        isAuthenticated() && resource.data.reviewerId == request.auth.uid
+      );
+    }
+
+    // 7. Newsletter Subscribers collection
+    match /newsletterSubscribers/{subscriberId} {
+      allow create: if request.resource.data.email is string &&
+        request.resource.data.email.matches('.*@.*\\..*');
+      allow read, update, delete: if isAdmin();
+    }
+  }
+}

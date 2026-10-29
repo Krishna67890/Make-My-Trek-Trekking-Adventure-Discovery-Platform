@@ -1,0 +1,41 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.role == 'ADMIN'
+      );
+    }
+
+    function isImageFile() {
+      return request.resource.contentType.matches('image/(jpeg|png|webp|gif)');
+    }
+
+    // User profile avatars
+    match /avatars/{userId}/{fileName} {
+      allow read: if true;
+      allow write: if isAuthenticated() && request.auth.uid == userId &&
+        request.resource.size < 5 * 1024 * 1024 &&
+        isImageFile();
+    }
+
+    // Trek and mountain photos
+    match /treks/{trekId}/{fileName} {
+      allow read: if true;
+      allow write: if isAuthenticated() &&
+        request.resource.size < 10 * 1024 * 1024 &&
+        isImageFile();
+    }
+
+    // Default deny
+    match /{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}
