@@ -10,9 +10,9 @@
 
 ---
 
-## 🚀 Key Features
+##  Key Features
 
-### 🌍 1. 3D Earth Globe & GPS Navigation
+###  1. 3D Earth Globe & GPS Navigation
 - **Interactive WebGL Earth Globe** with high-resolution textures, atmospheric glow, and cloud layers.
 - **Great-Circle Curved GPS Routes**: Visualized 3D arcs connecting user departure locations (Live GPS, Nashik, Mumbai, Pune, Delhi, Bengaluru) to mountain peak destinations with animated traveling photon particles.
 - **Dynamic Distance-Based Fare Calculation**:
@@ -23,11 +23,11 @@
   - Shortcut pills for **Sahyadri**, **Himalayas**, **South India**, and **World**.
   - Catalog of 16+ curated peaks (Anjaneri, Kalsubai, Harishchandragad, Rajgad, Torna, Sinhagad, AMK, Kudremukh, Everest, Annapurna, Ladakh, etc.).
 
-### 🗺️ 2. Actual Local Trail Map
+###  2. Actual Local Trail Map
 - **OpenStreetMap & Leaflet Integration**: High-clarity regional maps with GPS location tracking.
 - Interactive trail polylines, departure hub pickers, driving time estimates, and direct booking.
 
-### 🔐 3. Authentication & Role Management
+###  3. Authentication & Role Management
 - **Role Categories**:
   - **Trekker**: Discover trails, track routes, and book expeditions.
   - **Organizer**: Create certified expeditions, manage trekker rosters, and handle bookings.
@@ -39,14 +39,14 @@
 - **Google Sign-In via Firebase**:
   - Safe configuration with fallback handling for demo keys and full Firestore user profiling.
 
-### 💳 4. Verified Expedition Booking with Razorpay
+###  4. Verified Expedition Booking with Razorpay
 - Direct **"Book with Razorpay"** flow from Globe HUD and Local Map.
 - Automatic pre-fill of departure origin, destination, calculated travel distance, and dynamic fare.
 - Itemized price breakdown with verified booking receipt tickets.
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 - **Frontend**: React 18, TypeScript, Vite
 - **Styling**: TailwindCSS, Lucide Icons, Canvas 2D/WebGL
@@ -56,7 +56,7 @@
 
 ---
 
-## 📦 Getting Started
+##  Getting Started
 
 ### 1. Clone the repository
 ```bash
